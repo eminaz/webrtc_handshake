@@ -1,0 +1,56 @@
+!!! 5
+head
+    title WebRTC and peerConnection
+    link(rel='stylesheet', href='css/main.css')
+    
+    title WebRTC Synthesizer
+    link(rel='stylesheet', href='css/style.css')
+
+  body
+
+
+    script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+    script(src='http://underscorejs.org/underscore-min.js')
+    script(src='js/funcs.js')
+    script(src='js/app.js')
+
+    #allow-it Allow access to your webcam and waves your arms about to make some noise!
+    video#monitor(autoplay='autoplay')
+    canvas#canvas
+    canvas#output
+    script
+      $(document).ready(function() {
+      App.init();
+      });
+    script(type='text/javascript')
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    script(type='text/javascript')
+      try
+      {
+      var pageTracker = _gat._getTracker("UA-9647996-1");
+      pageTracker._trackPageview();
+      }
+      catch(err)
+      {
+      }
+
+    header
+      button#req-new new
+      span#group
+      input(type='text', placeholder='group id')
+      button#req-join join
+    .wrapper
+      video#local-video
+      textarea#remote-text(disabled='disabled')
+      textarea#local-text
+      button#send send1
+    .wrapper
+      video#remote-video
+    #remote-videos
+    script(src='socket.io/socket.io.js')
+    script(src='js/debug.js')
+    script(src='js/vendor.js')
+    script(src='js/main.js')
+
+

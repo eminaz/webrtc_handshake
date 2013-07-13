@@ -1,0 +1,77 @@
+@font-face {
+	font-family: 'roboto';
+	src: url('../font/Roboto-Regular.ttf');
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+body {
+	padding: 20px;
+}
+
+header {
+	margin-bottom: 20px;
+	transition: margin 200ms linear;
+	-webkit-transition: margin 200ms linear;
+	-moz-transition: margin 200ms linear;
+}
+
+header.hide {
+	margin-top: -55px;
+}
+
+button, input, textarea {
+	font-family: 'roboto';
+}
+
+button {
+	background-color: #00ABD7;
+	border: 1px solid #00ABD7;
+	color: white;
+	cursor: pointer;
+	font-weight: bold;
+	padding: 4px 8px;
+}
+
+button:hover {
+	opacity: .8;
+}
+
+video, textarea {
+	box-sizing: border-box;
+	width: 100%;
+}
+
+textarea {
+	resize: none;
+}
+
+input, textarea {
+	border: 1px solid gray;
+	outline: none;
+	padding: 4px 8px;
+}
+
+input:focus, textarea:focus {
+	border-color: #00ABD7;
+}
+
+#local-text {
+	height: 3em;
+}
+
+#remote-text {
+	height: 14em;
+}
+
+#send {
+	float: right;
+}
+
+.wrapper {
+	display: inline-block;
+	margin-right: 4px;
+	vertical-align: top;
+	width: 400px;
+}
