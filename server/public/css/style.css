@@ -14,7 +14,7 @@ html, body {
 }
 
 canvas, div, video {
-  margin: 0;
+  margin: 10px;
   padding: 0;
 }
 
@@ -22,10 +22,19 @@ video {
   display: none;
 }
 
-#canvas {
+#canvas-A {
   display: none;
 }
 
-#output {
-  position: fixed;
+#canvas-B {
+/*  position: fixed;*/
 }
+
+#canvas-A2 {
+  display: none;
+}
+
+#canvas-B2 {
+/*  position: fixed;*/
+}
+

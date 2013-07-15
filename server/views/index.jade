@@ -16,24 +16,14 @@ head
 
     #allow-it Allow access to your webcam and waves your arms about to make some noise!
     video#monitor(autoplay='autoplay')
-    canvas#canvas
-    canvas#output
+    canvas#canvas-A
+    canvas#canvas-B
+    canvas#canvas-A2
+    canvas#canvas-B2
     script
       $(document).ready(function() {
       App.init();
       });
-    script(type='text/javascript')
-      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    script(type='text/javascript')
-      try
-      {
-      var pageTracker = _gat._getTracker("UA-9647996-1");
-      pageTracker._trackPageview();
-      }
-      catch(err)
-      {
-      }
 
     header
       button#req-new new

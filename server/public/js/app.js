@@ -1,105 +1,131 @@
 var App = {
 
-  BLUR: 3,
-  THRESHOLD: 40,
-  GREEN_COLOR: {
-    red     : 17,
-    green   : 170,
-    blue    : 154
-  },
+    BLUR: 3,
+    THRESHOLD: 40,
+    GREEN_COLOR: {
+      red     : 17,
+      green   : 170,
+      blue    : 154
+    },
+  
+    rows: 480 / 80,
+    cols: 640 / 80,
+    win: $(window),
+  
+    aspectRatio: 640 / 480,
+    colors: [],
+    sounds: [],
+    soundFiles: [
+      "ZeekSound-0",
+      "ZeekSound-1",
+      "ZeekSound-2",
+      "ZeekSound-3",
+      "ZeekSound-4",
+      "ZeekSound-5",
+      "ZeekSound-6",
+      "ZeekSound-7",
+      "ZeekSound-8",
+      "ZeekSound-9",
+      "ZeekSound-10",
+      "ZeekSound-11",
+      "ZeekSound-12",
+      "ZeekSound-13",
+      "ZeekSound-14",
+      "ZeekSound-15",
+      "ZeekSound-16"
+    ],
+  
+    init: function() {
 
-  loading: true,
-  rows: 480 / 80,
-  cols: 640 / 80,
-  cell: {
-    width: 0,
-    height: 0,
-    pixels: 0,
-    drawWidth: 0,
-    drawHeight: 0
-  },
-  win: $(window),
-  aspectRatio: 640 / 480,
+        var i = -1;
+        // initialize colors and sounds
+        for (var y = 0; y < this.rows; ++y) {
+          this.colors[y] = [];
+          this.sounds[y] = [];
+          for (var x = 0; x < this.cols; ++x) {
+            this.colors[y][x] = "#"+((1<<24)*Math.random()|0).toString(16);
+            this.sounds[y][x] = this.addSound(this.soundFiles[++i]);
+            if (i >= this.soundFiles.length-1) i = -1;
+          }
+        }
 
-  colors: [],
-  sounds: [],
-  soundFiles: [
-    "ZeekSound-0",
-    "ZeekSound-1",
-    "ZeekSound-2",
-    "ZeekSound-3",
-    "ZeekSound-4",
-    "ZeekSound-5",
-    "ZeekSound-6",
-    "ZeekSound-7",
-    "ZeekSound-8",
-    "ZeekSound-9",
-    "ZeekSound-10",
-    "ZeekSound-11",
-    "ZeekSound-12",
-    "ZeekSound-13",
-    "ZeekSound-14",
-    "ZeekSound-15",
-    "ZeekSound-16"
-  ],
+        v1 = new VideoSquarer('monitor', 'canvas-A', 'canvas-B');
 
-  init: function() {
+        // TODO brAzzi64 - this enables us to pass object functions as callbacks, so that the 'this' attr gets properly set.
+        // find a way to do this differently so we don't depend on Underscore.
+        _.bindAll(v1, 
+          'gotStream', 
+          'streamError',
+          'animLoop',
+          'render'
+    //      'resize'
+        );
 
-    _.bindAll(this, 
-      'gotStream', 
-      'noStream',
-      'streamError',
-      'animLoop',
-      'render',
-      'resize'
-    );
+        v2 = new VideoSquarer('monitor', 'canvas-A2', 'canvas-B2');
+        _.bindAll(v2, 
+          'gotStream', 
+          'streamError',
+          'animLoop',
+          'render'
+    //      'resize'
+        );
+    },
 
-    this.video = document.getElementById('monitor');
-    this.canvas = document.getElementById('canvas');
-    this.output = document.getElementById('output');
+    addSound: function(fileName) {
 
-    this.canvas.width = 640 * 0.3;
-    this.canvas.height = 480 * 0.3;
-    this.context = canvas.getContext('2d');
-    this.context.translate(canvas.width, 0);
-    this.context.scale(-1, 1);
-
-    console.log(480 / 640);
+        var audio = document.createElement('audio');
+        audio.setAttribute("src", "audio/" + fileName + ".mp3");
+        audio.setAttribute("src", "http://flashmonkey.co.uk/lab/webrtc-synth/audio/" + fileName + ".mp3");
+        return audio;
+   }
+}
 
 
-    this.outputContext = this.output.getContext('2d');
+var VideoSquarer = function(monitor_id, canvasA_id, canvasB_id) {
 
+    this.loading = true;
+    this.cell = {
+      width: 0,
+      height: 0,
+      pixels: 0,
+      drawWidth: 0,
+      drawHeight: 0
+    }
 
-    this.win.on('resize', _.throttle(this.resize, 50));
+    this.video = document.getElementById(monitor_id);
+    this.canvasA = document.getElementById(canvasA_id);
+    this.canvasB = document.getElementById(canvasB_id);
 
+    this.canvasA.width = 640 * 0.3;
+    this.canvasA.height = 480 * 0.3;
 
+    this.contextA = this.canvasA.getContext('2d');
+    this.contextA.translate(this.canvasA.width, 0);
+    this.contextA.scale(-1, 1);
 
-    this.resize();
+    this.contextB = this.canvasB.getContext('2d');
 
+    // resize only one time
+    this.canvasB.height = 240; //App.win.height();
+    this.canvasB.width = 320; //App.win.height() * App.aspectRatio;
+    this.contextB.translate(this.canvasB.width, 0);
+    this.contextB.scale(-1, 1);
+    this.scale = this.canvasB.height / this.canvasA.height;
+    $(this.canvasA).css({
+      'left': (App.win.width() - this.canvasB.width) * 0.5
+    });
 
-
-    this.cell.width = Math.floor(canvas.width / this.cols);
-    this.cell.height = Math.floor(canvas.height / this.rows);
+    this.cell.width = Math.floor(this.canvasA.width / App.cols);
+    this.cell.height = Math.floor(this.canvasA.height / App.rows);
     this.cell.pixels = this.cell.width * this.cell.height;
-
-    this.cell.drawWidth = canvas.width / this.cols;
-    this.cell.drawHeight = canvas.height / this.rows;
+    this.cell.drawWidth = this.canvasA.width / App.cols;
+    this.cell.drawHeight = this.canvasA.height / App.rows;
 
     this.audioTagSupport = true;
 
-    var i = -1;
-    for(var y = 0; y < this.rows; ++y) {
-      this.colors[y] = [];
-      this.sounds[y] = [];
-      for(var x = 0; x < this.cols; ++x) {
-        this.colors[y][x] = "#"+((1<<24)*Math.random()|0).toString(16);
-        this.sounds[y][x] = this.addSound(this.soundFiles[++i]);
-        if(i >= this.soundFiles.length-1) i = -1;
-      }
-    }
 
-    
-
+    // this gets the user media. for one of the instances, we want instead to work with the network Stream of the other peer's camera.
+    var that = this;
     navigator.getUserMedia_ = navigator.getUserMedia || navigator.webkitGetUserMedia;
     if(!!navigator.getUserMedia_ !== false) {
       try {
@@ -108,15 +134,22 @@ var App = {
           toString: function() {
             return 'video';
           }
-        }, this.gotStream, this.noStream);
+        },
+        function(stream) { // gotStream
+            that.gotStream(stream);
+        },
+        function() { // callback: no stream
+            console.log('noStream');
+        });
       } 
       catch(error) {
         console.log(error);
       }
     }
-  },
+}
 
-  gotStream: function(stream) {
+VideoSquarer.prototype.gotStream = function(stream) {
+
     this.video.src = webkitURL.createObjectURL(stream);
     this.video.onerror = function() {
       stream.stop();
@@ -125,57 +158,39 @@ var App = {
     console.log('gotStream');
     $('#allow-it').hide();
     this.animLoop();
-  },
+}
 
-  noStream: function() {
-    console.log('noStream');
-  },
-  
-  streamError: function() {
+VideoSquarer.prototype.streamError = function() {  
+
     console.log('streamError');
     window.cancelAnimationFrame(this.myReq);
-  },
+}
 
-  addSound: function(fileName)
-  {
-    var audio = document.createElement('audio');
-    audio.setAttribute("src", "audio/" + fileName + ".mp3");
-    return audio;
-  },
+VideoSquarer.prototype.animLoop = function() {
 
-  animLoop: function() {
     this.render();
     this.myReq = window.requestAnimationFrame(this.animLoop, this);
-  },
+},
 
-  render: function() {
+VideoSquarer.prototype.render = function() {
 
+    var width = this.canvasA.width;
+    var height = this.canvasA.height;
 
-    var width = this.canvas.width;
-    var height = this.canvas.height;
+    this.contextA.drawImage(this.video, 0, 0, width, height);
+    this.contextB.drawImage(this.video, 0, 0, this.canvasB.width, this.canvasB.height);
 
-    this.context.drawImage(this.video, 0, 0, width, height);
+    var imageData = this.contextA.getImageData(0, 0, width, height);
+    var imageDataBlur = this.contextA.getImageData(0, 0, width, height);
 
+    addBlur(imageDataBlur, App.BLUR);
 
-
-    this.outputContext.drawImage(this.video, 0, 0, output.width, output.height);
-
-
-
-
-    var imageData = this.context.getImageData(0, 0, width, height);
-    var imageDataBlur = this.context.getImageData(0, 0, width, height);
-
-    addBlur(imageDataBlur, this.BLUR);
-
-
-
-    if(this.loading) {
+    if (this.loading) {
       this.loading = _.max(imageDataBlur.data) === 0;
       return;
     }
 
-    if(this.bgImage === undefined) {
+    if (this.bgImage === undefined) {
       this.bgImage = imageDataBlur;
       return;
     }
@@ -196,17 +211,14 @@ var App = {
 
     grid = [];
 
-    for(var y = 0; y < this.rows; ++y) {
+    for (var y = 0; y < App.rows; ++y) {
       grid[y] = [];
-      for(var x = 0; x < this.cols; ++x) {
+      for (var x = 0; x < App.cols; ++x) {
         grid[y][x] = 0;
       }
     }
 
-
     var activityCount = 0;
-
-
     var pixelData = imageData.data;
     var pixelDataLength = pixelData.length;
 
@@ -240,11 +252,11 @@ var App = {
           
           var diff = Math.abs((pixel.red + pixel.green + pixel.blue) - (bg.red + bg.green + bg.blue));
 
-          if(diff < this.THRESHOLD) {
+          if (diff < App.THRESHOLD) {
             this.merge(bgData, i - 3, bg, pixel, 0.7);
           }
           else {
-            this.paintPixel(pixelData, i - 3, this.GREEN_COLOR);
+            this.paintPixel(pixelData, i - 3, App.GREEN_COLOR);
             ++activityCount;
 
             this.merge(bgData, i - 3, bg, pixel, 0.3);
@@ -255,7 +267,7 @@ var App = {
             ++grid[yp][xp];
           }
 
-          //update pixel position
+          // update pixel position
           ++pixel.x;
           if(pixel.x > width) {
             pixel.x = 1;
@@ -269,60 +281,50 @@ var App = {
     imageData.data = pixelData;
     this.bgImage.data = bgData;
 
-    this.context.putImageData(imageData, 0, 0);
+    this.contextA.putImageData(imageData, 0, 0);
 
     for(var y = 0; y < grid.length; ++y) {
       for(var x = 0; x < grid[y].length; ++x) {
         var percent = grid[y][x] / this.cell.pixels;
-        this.colorBox((grid[y].length - x) * this.cell.drawWidth, y * this.cell.drawHeight, this.colors[y][x], percent);
-        this.playSound(this.sounds[y][x], percent);
+        this.colorBox((grid[y].length - x) * this.cell.drawWidth, y * this.cell.drawHeight, App.colors[y][x], percent);
+        this.playSound(App.sounds[y][x], percent);
       }
     }
 
-    this.context.globalAlpha = 1;
-    this.outputContext.globalAlpha = 1
+    this.contextA.globalAlpha = 1;
+    this.contextB.globalAlpha = 1;
+}
 
+VideoSquarer.prototype.colorBox = function(x, y, color, opacity) {
 
-  },
+    this.contextB.fillStyle = "#000000";
+    this.contextB.globalAlpha = 0.5 - opacity;
+    this.contextB.fillRect(x * this.scale, y * this.scale, (-this.cell.drawWidth * this.scale) - 1, (this.cell.drawHeight * this.scale) + 1);
 
-  colorBox: function(x, y, color, opacity) {
-    this.outputContext.fillStyle = "#000000";
-    this.outputContext.globalAlpha = 0.5 - opacity;
-    this.outputContext.fillRect(x * this.scale, y * this.scale, (-this.cell.drawWidth * this.scale) - 1, (this.cell.drawHeight * this.scale) + 1);
+    this.contextB.fillStyle = color;
+    this.contextB.globalAlpha = opacity * 0.8;
+    this.contextB.fillRect(x * this.scale, y * this.scale, (-this.cell.drawWidth * this.scale) - 1, (this.cell.drawHeight * this.scale) + 1);
+}
 
-    this.outputContext.fillStyle = color;
-    this.outputContext.globalAlpha = opacity * 0.8;
-    this.outputContext.fillRect(x * this.scale, y * this.scale, (-this.cell.drawWidth * this.scale) - 1, (this.cell.drawHeight * this.scale) + 1);
+VideoSquarer.prototype.playSound = function(sound, volume) {
 
-  },
-
-  playSound: function(sound, volume) {
     if(sound && volume > 0.2 && (sound.currentTime == 0 || sound.currentTime == sound.duration)) {
       sound.volume = Math.min(1, Math.max(0, volume));
       sound.play();
     }
-  },
+}
 
-  merge: function(pixelData, redComponentIndex, from, to, easing) {
+VideoSquarer.prototype.merge = function(pixelData, redComponentIndex, from, to, easing) {
+
     pixelData[redComponentIndex] += (to.red - from.red) * easing;
     pixelData[redComponentIndex + 1] += (to.green - from.green) * easing;
     pixelData[redComponentIndex + 2] += (to.blue - from.blue) * easing;
-  },
+}
 
-  paintPixel: function(pixelData, redComponentIndex, paintColor) {
+VideoSquarer.prototype.paintPixel = function(pixelData, redComponentIndex, paintColor) {
+
     pixelData[redComponentIndex] = paintColor.red;
     pixelData[redComponentIndex + 1] = paintColor.green;
     pixelData[redComponentIndex + 2] = paintColor.blue;
-  },
+}
 
-  resize: function(event) {
-    this.output.height = this.win.height();
-    this.output.width = this.win.height() * this.aspectRatio;
-    this.outputContext.translate(this.output.width, 0);
-    this.outputContext.scale(-1, 1);
-    this.scale = this.output.height / this.canvas.height;
-    $(this.output).css({
-      'left': (this.win.width() - this.output.width) * 0.5
-    });
-  }
-};
