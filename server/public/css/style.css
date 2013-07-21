@@ -28,6 +28,7 @@ video {
 
 #canvas-B {
 /*  position: fixed;*/
+  display: inline;
 }
 
 #canvas-A2 {

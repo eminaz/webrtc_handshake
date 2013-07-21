@@ -1,4 +1,4 @@
-var App = {
+var App3 = {
 
     BLUR: 3,
     THRESHOLD: 40,
@@ -49,7 +49,7 @@ var App = {
           }
         }
 
-        v1 = new VideoSquarer('monitor', 'canvas-A', 'canvas-B');
+        v1 = new VideoSquarer3('monitor', 'canvas-A', 'canvas-B');
 
         // TODO brAzzi64 - this enables us to pass object functions as callbacks, so that the 'this' attr gets properly set.
         // find a way to do this differently so we don't depend on Underscore.
@@ -62,7 +62,7 @@ var App = {
         );
 
 /*
-        v2 = new VideoSquarer('monitor', 'canvas-A2', 'canvas-B2');
+        v2 = new VideoSquarer3('monitor', 'canvas-A2', 'canvas-B2');
         _.bindAll(v2, 
           'gotStream', 
           'streamError',
@@ -84,7 +84,7 @@ var App = {
 }
 
 
-var VideoSquarer = function(monitor_id, canvasA_id, canvasB_id) {
+var VideoSquarer3 = function(monitor_id, canvasA_id, canvasB_id) {
 
     this.loading = true;
     this.cell = {
@@ -109,20 +109,20 @@ var VideoSquarer = function(monitor_id, canvasA_id, canvasB_id) {
     this.contextB = this.canvasB.getContext('2d');
 
     // resize only one time
-    this.canvasB.height = 240; //App.win.height();
-    this.canvasB.width = 320; //App.win.height() * App.aspectRatio;
+    this.canvasB.height = 240; //App3.win.height();
+    this.canvasB.width = 320; //App3.win.height() * App3.aspectRatio;
     this.contextB.translate(this.canvasB.width, 0);
     this.contextB.scale(-1, 1);
     this.scale = this.canvasB.height / this.canvasA.height;
     $(this.canvasA).css({
-      'left': (App.win.width() - this.canvasB.width) * 0.5
+      'left': (App3.win.width() - this.canvasB.width) * 0.5
     });
 
-    this.cell.width = Math.floor(this.canvasA.width / App.cols);
-    this.cell.height = Math.floor(this.canvasA.height / App.rows);
+    this.cell.width = Math.floor(this.canvasA.width / App3.cols);
+    this.cell.height = Math.floor(this.canvasA.height / App3.rows);
     this.cell.pixels = this.cell.width * this.cell.height;
-    this.cell.drawWidth = this.canvasA.width / App.cols;
-    this.cell.drawHeight = this.canvasA.height / App.rows;
+    this.cell.drawWidth = this.canvasA.width / App3.cols;
+    this.cell.drawHeight = this.canvasA.height / App3.rows;
 
     this.audioTagSupport = true;
 
@@ -151,9 +151,19 @@ var VideoSquarer = function(monitor_id, canvasA_id, canvasB_id) {
     }
 }
 
-VideoSquarer.prototype.gotStream = function(stream) {
+VideoSquarer3.prototype.gotStream = function(stream) {
 
     this.video.src = webkitURL.createObjectURL(stream);
+
+/*
+      console.log("URL.createObjectURL(stream)");
+      console.log(URL.createObjectURL(stream));
+
+      console.log("webkitURL.createObjectURL(stream)");
+      console.log(webkitURL.createObjectURL(stream));
+*/
+
+
     this.video.onerror = function() {
       stream.stop();
       this.streamError();
@@ -163,19 +173,22 @@ VideoSquarer.prototype.gotStream = function(stream) {
     this.animLoop();
 }
 
-VideoSquarer.prototype.streamError = function() {  
+VideoSquarer3.prototype.streamError = function() {  
 
     console.log('streamError');
     window.cancelAnimationFrame(this.myReq);
 }
 
-VideoSquarer.prototype.animLoop = function() {
+VideoSquarer3.prototype.animLoop = function() {
 
+
+    // console.log("this in animLoop");
+    // console.log(this);
     this.render();
     this.myReq = window.requestAnimationFrame(this.animLoop, this);
 }
 
-VideoSquarer.prototype.render = function() {
+VideoSquarer3.prototype.render = function() {
 
     var width = this.canvasA.width;
     var height = this.canvasA.height;
@@ -186,7 +199,7 @@ VideoSquarer.prototype.render = function() {
     var imageData = this.contextA.getImageData(0, 0, width, height);
     var imageDataBlur = this.contextA.getImageData(0, 0, width, height);
 
-    addBlur(imageDataBlur, App.BLUR);
+    addBlur(imageDataBlur, App3.BLUR);
 
     if (this.loading) {
       this.loading = _.max(imageDataBlur.data) === 0;
@@ -214,9 +227,9 @@ VideoSquarer.prototype.render = function() {
 
     grid = [];
 
-    for (var y = 0; y < App.rows; ++y) {
+    for (var y = 0; y < App3.rows; ++y) {
       grid[y] = [];
-      for (var x = 0; x < App.cols; ++x) {
+      for (var x = 0; x < App3.cols; ++x) {
         grid[y][x] = 0;
       }
     }
@@ -255,11 +268,11 @@ VideoSquarer.prototype.render = function() {
           
           var diff = Math.abs((pixel.red + pixel.green + pixel.blue) - (bg.red + bg.green + bg.blue));
 
-          if (diff < App.THRESHOLD) {
+          if (diff < App3.THRESHOLD) {
             this.merge(bgData, i - 3, bg, pixel, 0.7);
           }
           else {
-            this.paintPixel(pixelData, i - 3, App.GREEN_COLOR);
+            this.paintPixel(pixelData, i - 3, App3.GREEN_COLOR);
             ++activityCount;
 
             this.merge(bgData, i - 3, bg, pixel, 0.3);
@@ -289,24 +302,16 @@ VideoSquarer.prototype.render = function() {
     for(var y = 0; y < grid.length; ++y) {
       for(var x = 0; x < grid[y].length; ++x) {
         var percent = grid[y][x] / this.cell.pixels;
-
-
-        //hack
-        //percent=0.2;
-
-        this.colorBox((grid[y].length - x) * this.cell.drawWidth, y * this.cell.drawHeight, App.colors[y][x], percent);
-        this.playSound(App.sounds[y][x], percent);
+        this.colorBox((grid[y].length - x) * this.cell.drawWidth, y * this.cell.drawHeight, App3.colors[y][x], percent);
+        this.playSound(App3.sounds[y][x], percent);
       }
     }
 
     this.contextA.globalAlpha = 1;
     this.contextB.globalAlpha = 1;
-
-    //hack
-    this.contextB.globalAlpha = 0;
 }
 
-VideoSquarer.prototype.colorBox = function(x, y, color, opacity) {
+VideoSquarer3.prototype.colorBox = function(x, y, color, opacity) {
 
     this.contextB.fillStyle = "#000000";
     this.contextB.globalAlpha = 0.5 - opacity;
@@ -317,7 +322,7 @@ VideoSquarer.prototype.colorBox = function(x, y, color, opacity) {
     this.contextB.fillRect(x * this.scale, y * this.scale, (-this.cell.drawWidth * this.scale) - 1, (this.cell.drawHeight * this.scale) + 1);
 }
 
-VideoSquarer.prototype.playSound = function(sound, volume) {
+VideoSquarer3.prototype.playSound = function(sound, volume) {
 
     if(sound && volume > 0.2 && (sound.currentTime == 0 || sound.currentTime == sound.duration)) {
       sound.volume = Math.min(1, Math.max(0, volume));
@@ -325,14 +330,14 @@ VideoSquarer.prototype.playSound = function(sound, volume) {
     }
 }
 
-VideoSquarer.prototype.merge = function(pixelData, redComponentIndex, from, to, easing) {
+VideoSquarer3.prototype.merge = function(pixelData, redComponentIndex, from, to, easing) {
 
     pixelData[redComponentIndex] += (to.red - from.red) * easing;
     pixelData[redComponentIndex + 1] += (to.green - from.green) * easing;
     pixelData[redComponentIndex + 2] += (to.blue - from.blue) * easing;
 }
 
-VideoSquarer.prototype.paintPixel = function(pixelData, redComponentIndex, paintColor) {
+VideoSquarer3.prototype.paintPixel = function(pixelData, redComponentIndex, paintColor) {
 
     pixelData[redComponentIndex] = paintColor.red;
     pixelData[redComponentIndex + 1] = paintColor.green;

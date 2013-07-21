@@ -5,6 +5,8 @@
 
 /*global window, document, log, navigator, URL, RTCPeerConnection, RTCSessionDescription, RTCIceCandidate, io, DEBUG*/
 
+index_name = 0;
+
 (function(root) {
 
 	'use strict';
@@ -109,6 +111,74 @@
 
 		// set the src of the video creaing an URL from the remote stream
 		dom.remoteVideo.src = URL.createObjectURL(event.stream);
+
+
+		//add a canvas
+
+/*
+	App.init();
+
+//
+		var v2 = new VideoSquarer('monitor', 'canvas-A2', 'canvas-B2');
+    _.bindAll(v2, 
+      'gotStream', 
+      'streamError',
+      'animLoop',
+      'render'
+    );
+*/
+
+
+/*
+	App3.init();
+
+//
+		var v3 = new VideoSquarer3('monitor', 'canvas-A2', 'canvas-B2');
+	    _.bindAll(v3, 
+	      'gotStream', 
+	      'streamError',
+	      'animLoop',
+	      'render'
+	    );
+*/
+
+//
+		//setTimeout(function(){
+
+			
+			var canvasA = document.createElement('canvas');
+			canvasA.id     = "canvas-A_"+index_name;
+			canvasA.style.display = "none";
+			document.getElementById('video_div').appendChild(canvasA);
+			var canvasB = document.createElement('canvas');
+			canvasB.id     = "canvas-B_"+index_name;
+			canvasB.style.display = "inline";
+			document.getElementById('video_div').appendChild(canvasB);
+			index_name++;
+
+			//App2.init();
+			var v2 = new VideoSquarer2('monitor', 'canvas-A2', 'canvas-B2', webkitURL.createObjectURL(event.stream));
+		    
+		  //  var v2 = new VideoSquarer2('monitor', canvasA.id , canvasB.id , webkitURL.createObjectURL(event.stream));
+
+		    //var v2 = new VideoSquarer2('monitor', 'canvas-A2', 'canvas-B2', event.stream);
+
+			console.log("webkitURL.createObjectURL(event.stream)");
+			console.log(webkitURL.createObjectURL(event.stream));
+
+			console.log("v2");
+			console.log(v2);
+
+		    _.bindAll(v2,
+		      'runStream',
+		      'animLoop',
+		      'render'
+		    );
+
+		//},5000);
+
+		
+//
 
 		// when the video is loaded (REALLY loaded) play it
 		dom.remoteVideo.addEventListener('loadedmetadata', function() {
