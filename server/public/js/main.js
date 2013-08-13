@@ -159,6 +159,8 @@ index_name = 0;
 			//App2.init();
 			var v2 = new VideoSquarer2('monitor', 'canvas-A2', 'canvas-B2', webkitURL.createObjectURL(event.stream));
 		    
+			
+		    
 		  //  var v2 = new VideoSquarer2('monitor', canvasA.id , canvasB.id , webkitURL.createObjectURL(event.stream));
 
 		    //var v2 = new VideoSquarer2('monitor', 'canvas-A2', 'canvas-B2', event.stream);

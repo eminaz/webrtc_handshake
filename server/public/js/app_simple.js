@@ -286,7 +286,7 @@ VideoSquarer2.prototype.render = function() {
 
 
         //hack
-        percent=0.5;
+        //percent=0.5;
 
         this.colorBox((grid[y].length - x) * this.cell.drawWidth, y * this.cell.drawHeight, App2.colors[y][x], percent);
         this.playSound(App2.sounds[y][x], percent);
@@ -295,6 +295,9 @@ VideoSquarer2.prototype.render = function() {
 
     this.contextA.globalAlpha = 1;
     this.contextB.globalAlpha = 1;
+
+    //hack
+    this.contextB.globalAlpha = 0;
 }
 
 
